@@ -16,27 +16,28 @@ public class TestEnterprise {
         Database deleted = new Database(); // creates a database for deleted products.
         DateFormat df = DateFormat.getDateInstance(DateFormat.LONG);
         Date now = new Date();
-        SimpleDateFormat date_format = new SimpleDateFormat("MM/dd/yyyy");
-        Date manu_date;
-        NumberFormat nf = NumberFormat.getCurrencyInstance();
+        SimpleDateFormat date_format = new SimpleDateFormat("MM/dd/yyyy"); // sets the pattern for the dates of the products
+        Date manu_date; // date reference
+        NumberFormat nf = NumberFormat.getCurrencyInstance(); //sets formatting for currency
         boolean done = false;
 
+        // main program loop
         while(!done){
             int menu = GetData.getInt("\tABC Enterprise\n" + "\t" + df.format(now) + "\n"
                     + "\nPlease Choose From the Following:" + "\n1. Add new product\n2. Update Existing Product" +
                     "\n3. Delete a Product\n4. View Product Information\n5. Exit");
-
+            // Main menu
             switch (menu){
                 case 1:
                     // make an address object
                     String street = GetData.getString("What is the street address of the manufacturer?");
                     String city =  GetData.getString("What is the city of the manufacturer?");
-                    String state = GetData.getString("In which state is the manufacturer located in?");
-                    String zip = GetData.getString("What is the zip code of the manufacturer");
+                    String state = GetData.getString("In which state is the manufacturer located?");
+                    String zip = GetData.getString("What is the zip code of the manufacturer?");
                     Address addr = new Address(street, city, state,zip);
 
                     //make manufacturer object
-                    String company =  GetData.getString("What is the name of the company manufacturing the product");
+                    String company =  GetData.getString("What is the name of the company manufacturing the product?");
                     Manufacturer manu = new Manufacturer(addr,company);
 
                     // make a product object
@@ -44,18 +45,18 @@ public class TestEnterprise {
                     int quantity = GetData.getInt("What is the quantity of the product?");
                     double price = GetData.getDouble("What is the price of the product?");
 
-                    String Mdate = GetData.getString("What date was is manufactured? (MM/dd/yyyy");
+                    String Mdate = GetData.getString("What date was it manufactured? (MM/dd/yyyy)");
                     manu_date = date_format.parse(Mdate); // parse from users String input to a date object
                     String date = date_format.format(manu_date); // format it from a date back to a string
 
                     Product p = new Product(manu, prod_name, quantity, price, date);
 
-                    db.add(p); // add the product to the ArrayList
+                    db.add(p); // added the product to the ArrayList
 
                 break;
                 case 2: //update a product
                     prod_name = GetData.getString("What is the name of the product you would like to update?");
-                    db.search(prod_name);
+                    db.search(prod_name); // searched the object in the ArrayList
 
                     if(!db.isFound()){
                         JOptionPane.showMessageDialog(null, "The Product was not found");
@@ -63,27 +64,31 @@ public class TestEnterprise {
                     else {
                         int option = GetData.getInt("Would you like to (1) Re-order the product (2) Make a sale\n" +
                                 "(3) change the price of the product?");
+                        // secondary menu
                         switch (option) {
+                            // Increases the quantity of the specified product
                             case 1:
-                                int qnt = GetData.getInt("How many " + prod_name + " would you like to re-order");
+                                int qnt = GetData.getInt("How many " + prod_name + " would you like to re-order?");
                                 if (qnt < 0) {
-                                    JOptionPane.showInputDialog(null, "Invalid quantity amount, the quantity must be greater than 0");
+                                    JOptionPane.showInputDialog(null, "Invalid quantity amount, the quantity must be greater than 0.");
                                 } else {
                                     Product prd = db.getProduct();
                                     prd.reOrder(qnt);
                                     JOptionPane.showMessageDialog(null, "" + qnt + " " + prod_name + " have been re-ordered.");
                                 }
                                 break;
+                                // Sells, decreases quantity, of specified product
                             case 2:
-                                int amount = GetData.getInt("How many " + prod_name + " would you like to sell");
+                                int amount = GetData.getInt("How many " + prod_name + " would you like to sell?");
                                 Product pd = db.getProduct();
                                 if (amount > pd.getQuantity()) {
                                     JOptionPane.showMessageDialog(null, "The sale exceeds the quantity amount, sale could not be made");
                                 } else {
                                     pd.sell(amount);
-                                    JOptionPane.showMessageDialog(null, "" + amount + " " + prod_name + " have been sold");
+                                    JOptionPane.showMessageDialog(null, "" + amount + " " + prod_name + "'s have been sold");
                                 }
                                 break;
+                                // Changes the price of the specified product
                             case 3:
                                 Product prod = db.getProduct();
                                 double new_price = GetData.getDouble("What should the new price be?");
@@ -110,6 +115,7 @@ public class TestEnterprise {
                 case 4: // view products
                     int userInput = GetData.getInt("What information would you like to view?\n" +
                             "1. Single product\n2. Inventory Report\n3. All deleted products\n");
+                        //Another secondary menu
                         switch (userInput){
                             case 1:// single product
                                 String pro_name = GetData.getString("What is the name of the product you would like to view?");
@@ -131,7 +137,7 @@ public class TestEnterprise {
                                     for(int i = 0; i < current.size();i++){
                                         Product prod = (Product) current.get(i);
                                         s = s + prod.getProductName() + "\t" + prod.getManu_Date() +
-                                                "\t" + prod.getQuantity() + "\t" + prod.getPrice() +
+                                                "\t" + prod.getQuantity() + "\t" + nf.format(prod.getPrice()) +
                                                 "\t" + prod.getManufacturer().getCompanyName() + "\t" +
                                                  prod.getManufacturer().getAddress().getState() + "\n";
                                     }
